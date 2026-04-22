@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pony Swapper
 // @namespace    http://tampermonkey.net/
-// @version      999.99
+// @version      999.9999
 // @description  Quickly swap between saved ponies
 // @author       Nikowoo
 // @match        *://*.pony.town/*
@@ -12,7 +12,6 @@
 (() => {
     'use strict';
 
-    // check the useragent to check if its a mobile device
     const isMobile = /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent)
         || ('ontouchstart' in window && navigator.maxTouchPoints > 1);
 
@@ -24,9 +23,7 @@
             url: MOBILE_SCRIPT_URL,
             onload(res) {
                 if (res.status === 200) {
-                    const script = document.createElement('script');
-                    script.textContent = res.responseText;
-                    document.head.appendChild(script);
+                    (new Function(res.responseText))();
                 } else {
                     console.error('[PonySwapper] Failed to load mobile script — HTTP', res.status);
                 }
@@ -38,18 +35,17 @@
 
         return;
     }
- // main script
+
     let running = false;
     let interval = null;
     let lastPickedId = null;
     let observer = null;
-
     let swapDelay = 400;
+
     const STYLE_ID = 'tm-hide-swapper-style';
 
     function injectHideStyle() {
         if (document.getElementById(STYLE_ID)) return;
-
         const style = document.createElement('style');
         style.id = STYLE_ID;
         style.textContent = `
@@ -81,15 +77,12 @@
     function pickNoRepeat(items) {
         if (!items.length) return null;
         if (items.length === 1) return items[0];
-
         let pick;
         let safety = 0;
-
         do {
             pick = items[(Math.random() * items.length) | 0];
             safety++;
         } while (pick.closest('li')?.id === lastPickedId && safety < 10);
-
         lastPickedId = pick.closest('li')?.id ?? null;
         return pick;
     }
@@ -100,12 +93,10 @@
 
     function swapOnce() {
         openMenu();
-
         requestAnimationFrame(() => {
             const items = getItems();
             const pick = pickNoRepeat(items);
             if (!pick) return;
-
             pick.click();
         });
     }
@@ -116,9 +107,6 @@
         interval = setInterval(swapOnce, swapDelay);
     }
 
-    // -----------------------------
-    // REMOVE SEARCH UI
-    // -----------------------------
     const SEARCH_SELECTOR = '.character-select-search';
 
     function removeSearchBlock() {
@@ -128,11 +116,9 @@
 
     function startRemovingUI() {
         removeSearchBlock();
-
         observer = new MutationObserver(() => {
             removeSearchBlock();
         });
-
         observer.observe(document.documentElement, {
             childList: true,
             subtree: true
@@ -149,54 +135,41 @@
     function start() {
         if (running) return;
         running = true;
-
         injectHideStyle();
         hideSwapper();
         startRemovingUI();
-
         interval = setInterval(swapOnce, swapDelay);
         console.log("Started @", swapDelay + "ms");
     }
 
     function stop() {
         running = false;
-
         clearInterval(interval);
         interval = null;
-
         stopRemovingUI();
         showSwapper();
-
         console.log("Stopped");
     }
 
     function setSpeedPrompt() {
         const input = prompt(`Enter swap speed (50–2000 ms):`, swapDelay);
-
         if (input === null) return;
-
         const value = Number(input);
-
         if (!Number.isInteger(value) || value < 50 || value > 2000) {
             alert("Invalid input. Enter a number between 50 and 2000.");
             return;
         }
-
         swapDelay = value;
         console.log("Speed set to:", swapDelay + "ms");
-
         restartInterval();
     }
 
     document.addEventListener('keydown', (e) => {
         const activeTag = document.activeElement?.tagName;
         const typing = activeTag === "INPUT" || activeTag === "TEXTAREA";
-
-             if (!typing && e.key === ',') {
+        if (!typing && e.key === ',') {
             running ? stop() : start();
         }
-
-        // Oopen speed prompt
         if (!typing && e.key === '.') {
             setSpeedPrompt();
         }
