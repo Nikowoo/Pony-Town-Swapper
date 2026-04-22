@@ -123,14 +123,6 @@
 
     function buildButtons() {
         const wrap = document.createElement('div');
-        Object.assign(wrap.style, {
-            position: 'fixed',
-            top: '12px',
-            left: '12px',
-            display: 'flex',
-            gap: '6px',
-            zIndex: '999998',
-        });
 
         function makeBtn(text, onClick) {
             const btn = document.createElement('button');
