@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pony Toy Swapper
 // @namespace    http://tampermonkey.net/
-// @version      3.0
+// @version      3.1
 // @updateURL    https://raw.githubusercontent.com/Nikowoo/Pony-Town-Swapper/refs/heads/main/toyswapper.user.js
 // @downloadURL  https://raw.githubusercontent.com/Nikowoo/Pony-Town-Swapper/refs/heads/main/toyswapper.user.js
 // @description  Quickly swap between custom plushies randomly
@@ -10,7 +10,6 @@
 // @icon         https://pony.town/favicon.ico
 // @grant        none
 // ==/UserScript==
-//*.pony.town/*
 
 (() => {
     'use strict';
@@ -98,8 +97,26 @@
         return pick;
     }
 
-    function swapOnce() {
+    function unselectToy() {
+        openSettingsMenu();
 
+        requestAnimationFrame(() => {
+            const opened = clickSelectToy();
+            if (!opened) return;
+
+            setTimeout(() => {
+                const unselect = document.querySelector('toys-modal .selection-item');
+                if (unselect) {
+                    unselect.click();
+                    setTimeout(() => clickConfirm(), 80);
+                } else {
+                    console.warn('[ToySwapper] No selection item (X button) found to unselect.');
+                }
+            }, 150);
+        });
+    }
+
+    function swapOnce() {
         openSettingsMenu();
 
         requestAnimationFrame(() => {
@@ -149,6 +166,7 @@
         clearInterval(interval);
         interval = null;
         showUI();
+        unselectToy();
         console.log('[ToySwapper] Stopped');
     }
 
@@ -179,6 +197,4 @@
             setSpeedPrompt();
         }
     });
-
-    console.log('[ToySwapper] Loaded — press [ to start/stop, ] to set speed');
 })();
