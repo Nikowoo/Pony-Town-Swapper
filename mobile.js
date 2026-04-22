@@ -1,14 +1,3 @@
-// ==UserScript==
-// @name         Pony Swapper Mobile
-// @namespace    http://tampermonkey.net/
-// @version      2.0.0
-// @description  mobile version
-// @author       Nikowoo
-// @match        *://*.pony.town/*
-// @icon         https://pony.town/favicon.ico
-// @grant        none
-// ==/UserScript==
-
 (() => {
     'use strict';
 
