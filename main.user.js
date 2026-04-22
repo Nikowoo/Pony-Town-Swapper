@@ -2,8 +2,8 @@
 // @name         Pony Swapper
 // @namespace    http://tampermonkey.net/
 // @version      999.9999
-// @updateURL    https://raw.githubusercontent.com/Nikowoo/Pony-Town-Swapper/refs/heads/main/main.js
-// @downloadURL  https://raw.githubusercontent.com/Nikowoo/Pony-Town-Swapper/refs/heads/main/main.js
+// @updateURL    https://raw.githubusercontent.com/Nikowoo/Pony-Town-Swapper/refs/heads/main/main.user.js
+// @downloadURL  https://raw.githubusercontent.com/Nikowoo/Pony-Town-Swapper/refs/heads/main/main.user.js
 // @description  Quickly swap between saved ponies
 // @author       Nikowoo
 // @match        *://*.pony.town/*
