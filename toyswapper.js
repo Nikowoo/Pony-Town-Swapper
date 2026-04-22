@@ -2,6 +2,8 @@
 // @name         Pony Toy Swapper
 // @namespace    http://tampermonkey.net/
 // @version      3.0
+// @updateURL    https://raw.githubusercontent.com/Nikowoo/Pony-Town-Swapper/refs/heads/main/toyswapper.js
+// @downloadURL  https://raw.githubusercontent.com/Nikowoo/Pony-Town-Swapper/refs/heads/main/toyswapper.js
 // @description  Quickly swap between custom plushies randomly
 // @author       Nikowoo
 // @match        *://*.pony.town/*
