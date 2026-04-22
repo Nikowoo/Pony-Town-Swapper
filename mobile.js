@@ -122,7 +122,16 @@
     }
 
     function buildButtons() {
+        if (document.getElementById('tm-controls')) return;
+
         const wrap = document.createElement('div');
+        wrap.id = 'tm-controls';
+
+        // top-left corner, always visible
+        wrap.style.position = 'fixed';
+        wrap.style.top = '0';
+        wrap.style.left = '0';
+        wrap.style.zIndex = '2147483647';
 
         function makeBtn(text, onClick) {
             const btn = document.createElement('button');
@@ -137,6 +146,17 @@
         wrap.append(toggleBtn, speedBtn);
         document.body.appendChild(wrap);
     }
+
+    const keepAliveObserver = new MutationObserver(() => {
+        if (!document.getElementById('tm-controls')) {
+            buildButtons();
+        }
+    });
+
+    keepAliveObserver.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
 
     buildButtons();
 
