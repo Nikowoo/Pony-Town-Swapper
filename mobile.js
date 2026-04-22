@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Pony Swapper Mobile
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
+// @version      2.0.0
 // @description  mobile version
 // @author       Nikowoo
 // @match        *://*.pony.town/*
@@ -17,7 +17,8 @@
     let lastPickedId = null;
     let observer = null;
     let swapDelay = 150;
-const STYLE_ID = 'tm-hide-swapper-style';
+
+    const STYLE_ID = 'tm-hide-swapper-style';
 
     function injectHideStyle() {
         if (document.getElementById(STYLE_ID)) return;
@@ -47,15 +48,12 @@ const STYLE_ID = 'tm-hide-swapper-style';
     function pickNoRepeat(items) {
         if (!items.length) return null;
         if (items.length === 1) return items[0];
-
         let pick;
         let safety = 0;
-
         do {
             pick = items[(Math.random() * items.length) | 0];
             safety++;
         } while (pick.closest('li')?.id === lastPickedId && safety < 10);
-
         lastPickedId = pick.closest('li')?.id ?? null;
         return pick;
     }
@@ -94,6 +92,7 @@ const STYLE_ID = 'tm-hide-swapper-style';
         observer?.disconnect();
         observer = null;
     }
+
     function start() {
         if (running) return;
         running = true;
@@ -101,6 +100,7 @@ const STYLE_ID = 'tm-hide-swapper-style';
         hideSwapper();
         startRemovingUI();
         interval = setInterval(swapOnce, swapDelay);
+        updateToggleBtn();
         showToast('Swapper started');
     }
 
@@ -111,8 +111,10 @@ const STYLE_ID = 'tm-hide-swapper-style';
         interval = null;
         stopRemovingUI();
         showSwapper();
+        updateToggleBtn();
         showToast('Swapper stopped');
     }
+
     let toastTimeout = null;
 
     function showToast(message) {
@@ -127,7 +129,7 @@ const STYLE_ID = 'tm-hide-swapper-style';
                 transform: 'translateX(-50%) translateY(20px)',
                 background: 'rgba(15, 10, 30, 0.92)',
                 color: '#e8d5ff',
-                fontFamily: '"SF Pro Rounded", "Nunito", system-ui, sans-serif',
+                fontFamily: '"Nunito", system-ui, sans-serif',
                 fontSize: '14px',
                 fontWeight: '600',
                 letterSpacing: '0.02em',
@@ -143,19 +145,19 @@ const STYLE_ID = 'tm-hide-swapper-style';
             });
             document.body.appendChild(toast);
         }
-
         toast.textContent = message;
         toast.style.opacity = '1';
         toast.style.transform = 'translateX(-50%) translateY(0)';
-
         clearTimeout(toastTimeout);
         toastTimeout = setTimeout(() => {
             toast.style.opacity = '0';
             toast.style.transform = 'translateX(-50%) translateY(20px)';
         }, 1800);
     }
+
     function buildModal() {
         if (document.getElementById('tm-modal-overlay')) return;
+
         const overlay = document.createElement('div');
         overlay.id = 'tm-modal-overlay';
         Object.assign(overlay.style, {
@@ -171,6 +173,7 @@ const STYLE_ID = 'tm-hide-swapper-style';
             opacity: '0',
             transition: 'opacity 0.25s ease',
         });
+
         const card = document.createElement('div');
         Object.assign(card.style, {
             background: 'linear-gradient(160deg, #12082a 0%, #1a0d35 100%)',
@@ -181,73 +184,39 @@ const STYLE_ID = 'tm-hide-swapper-style';
             boxShadow: '0 -4px 60px rgba(120, 40, 255, 0.2), 0 2px 40px rgba(0,0,0,0.6)',
             transform: 'translateY(30px)',
             transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            fontFamily: '"SF Pro Rounded", "Nunito", system-ui, sans-serif',
+            fontFamily: '"Nunito", system-ui, sans-serif',
             color: '#e8d5ff',
         });
 
         const handle = document.createElement('div');
         Object.assign(handle.style, {
-            width: '40px',
-            height: '4px',
-            borderRadius: '2px',
-            background: 'rgba(180,120,255,0.3)',
-            margin: '0 auto 20px',
+            width: '40px', height: '4px', borderRadius: '2px',
+            background: 'rgba(180,120,255,0.3)', margin: '0 auto 20px',
         });
 
-        // Title
         const title = document.createElement('div');
-        title.textContent = 'Pony Swapper';
+        title.textContent = 'Swap Speed';
         Object.assign(title.style, {
-            fontSize: '20px',
-            fontWeight: '700',
-            marginBottom: '6px',
-            letterSpacing: '-0.01em',
-        });
-        const subtitle = document.createElement('div');
-        subtitle.id = 'tm-modal-status';
-        Object.assign(subtitle.style, {
-            fontSize: '13px',
-            color: 'rgba(200,170,255,0.6)',
-            marginBottom: '24px',
+            fontSize: '18px', fontWeight: '700', marginBottom: '20px', letterSpacing: '-0.01em',
         });
 
-        function refreshStatus() {
-            subtitle.textContent = running
-                ? `Running · swapping every ${swapDelay}ms`
-                : `Stopped · swap speed ${swapDelay}ms`;
-            subtitle.style.color = running ? 'rgba(140,255,170,0.75)' : 'rgba(200,170,255,0.5)';
-        }
-        refreshStatus();
-
-        // Speed label row
         const speedRow = document.createElement('div');
         Object.assign(speedRow.style, {
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '10px',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px',
         });
 
         const speedLabel = document.createElement('label');
-        speedLabel.textContent = 'Swap speed';
-        Object.assign(speedLabel.style, {
-            fontSize: '14px',
-            fontWeight: '600',
-            color: 'rgba(220,195,255,0.9)',
-        });
+        speedLabel.textContent = 'Interval';
+        Object.assign(speedLabel.style, { fontSize: '14px', fontWeight: '600', color: 'rgba(220,195,255,0.9)' });
 
         const speedValue = document.createElement('span');
-        speedValue.id = 'tm-speed-value';
         speedValue.textContent = swapDelay + ' ms';
         Object.assign(speedValue.style, {
-            fontSize: '14px',
-            fontWeight: '700',
-            color: '#c87dff',
-            minWidth: '60px',
-            textAlign: 'right',
+            fontSize: '14px', fontWeight: '700', color: '#c87dff', minWidth: '60px', textAlign: 'right',
         });
 
         speedRow.append(speedLabel, speedValue);
+
         const slider = document.createElement('input');
         slider.type = 'range';
         slider.min = '50';
@@ -255,93 +224,41 @@ const STYLE_ID = 'tm-hide-swapper-style';
         slider.step = '50';
         slider.value = swapDelay;
         Object.assign(slider.style, {
-            width: '100%',
-            marginBottom: '20px',
-            accentColor: '#9b4fff',
-            cursor: 'pointer',
+            width: '100%', marginBottom: '20px', accentColor: '#9b4fff', cursor: 'pointer',
         });
 
         slider.addEventListener('input', () => {
             swapDelay = Number(slider.value);
             speedValue.textContent = swapDelay + ' ms';
-            refreshStatus();
             restartInterval();
         });
-        const btnRow = document.createElement('div');
-        Object.assign(btnRow.style, {
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '10px',
-            marginBottom: '12px',
-        });
 
-        function makeBtn(label, bg, action) {
-            const btn = document.createElement('button');
-            btn.textContent = label;
-            Object.assign(btn.style, {
-                background: bg,
-                border: 'none',
-                borderRadius: '14px',
-                padding: '14px 10px',
-                color: '#fff',
-                fontSize: '15px',
-                fontWeight: '700',
-                fontFamily: 'inherit',
-                cursor: 'pointer',
-                letterSpacing: '0.01em',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.3)',
-                transition: 'filter 0.15s ease, transform 0.1s ease',
-                WebkitTapHighlightColor: 'transparent',
-            });
-            btn.addEventListener('touchstart', () => {
-                btn.style.filter = 'brightness(1.2)';
-                btn.style.transform = 'scale(0.97)';
-            }, { passive: true });
-            btn.addEventListener('touchend', () => {
-                btn.style.filter = '';
-                btn.style.transform = '';
-                action();
-            }, { passive: true });
-            btn.addEventListener('click', action);
-            return btn;
-        }
-
-        const startBtn = makeBtn('Start', 'linear-gradient(135deg, #6b23c9, #9b4fff)', () => {
-            start();
-            refreshStatus();
-        });
-
-        const stopBtn = makeBtn('Stop', 'linear-gradient(135deg, #3a1060, #5a1f8a)', () => {
-            stop();
-            refreshStatus();
-        });
-
-        btnRow.append(startBtn, stopBtn);
-        const closeBtn = makeBtn('✕ Close', 'rgba(255,255,255,0.07)', closeModal);
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = 'Done';
         Object.assign(closeBtn.style, {
-            gridColumn: '1 / -1',
+            width: '100%',
             background: 'rgba(255,255,255,0.06)',
-            color: 'rgba(210,180,255,0.7)',
+            border: 'none',
+            borderRadius: '14px',
             padding: '12px',
+            color: 'rgba(210,180,255,0.7)',
+            fontSize: '15px',
+            fontWeight: '700',
+            fontFamily: 'inherit',
+            cursor: 'pointer',
         });
+        closeBtn.addEventListener('click', closeModal);
 
-        card.append(handle, title, subtitle, speedRow, slider, btnRow, closeBtn);
+        card.append(handle, title, speedRow, slider, closeBtn);
         overlay.appendChild(card);
         document.body.appendChild(overlay);
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                overlay.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            });
-        });
 
-    
-        overlay.addEventListener('touchend', (e) => {
-            if (e.target === overlay) closeModal();
-        }, { passive: true });
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) closeModal();
-        });
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            overlay.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }));
+
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
     }
 
     function closeModal() {
@@ -353,55 +270,76 @@ const STYLE_ID = 'tm-hide-swapper-style';
         setTimeout(() => overlay.remove(), 280);
     }
 
-    function openModal() {
-        if (document.getElementById('tm-modal-overlay')) {
-            closeModal();
-        } else {
-            buildModal();
-        }
+    let toggleBtn;
+
+    function updateToggleBtn() {
+        if (!toggleBtn) return;
+        toggleBtn.textContent = running ? 'Stop' : 'Start';
+        toggleBtn.style.background = running
+            ? 'linear-gradient(135deg, #3a1060, #5a1f8a)'
+            : 'linear-gradient(135deg, #6b23c9, #9b4fff)';
     }
 
-    const GESTURE_WINDOW = 300; //  touches must always land within this window
-    const TAP_MOVE_THRESHOLD = 15;
-
-    let touchStartTime = 0;
-    let touchStartPositions = [];
-
-    document.addEventListener('touchstart', (e) => {
-        touchStartTime = Date.now();
-        touchStartPositions = Array.from(e.touches).map(t => ({ x: t.clientX, y: t.clientY }));
-    }, { passive: true });
-
-    document.addEventListener('touchend', (e) => {
-        const elapsed = Date.now() - touchStartTime;
-        const count = e.changedTouches.length + e.touches.length; // total fingers
-
-        // Verify it was a short tap
-        if (elapsed > GESTURE_WINDOW) return;
-
-  
-        const moved = Array.from(e.changedTouches).some((t, i) => {
-            const start = touchStartPositions[i];
-            if (!start) return false;
-            const dx = Math.abs(t.clientX - start.x);
-            const dy = Math.abs(t.clientY - start.y);
-            return dx > TAP_MOVE_THRESHOLD || dy > TAP_MOVE_THRESHOLD;
+    function buildButtons() {
+        const wrap = document.createElement('div');
+        Object.assign(wrap.style, {
+            position: 'fixed',
+            top: '12px',
+            left: '12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            zIndex: '999998',
         });
-        if (moved) return;
 
-        const fingers = touchStartPositions.length;
-
-        if (fingers === 3) {
-            e.preventDefault?.();
-            running ? stop() : start();
-        } else if (fingers === 4) {
-            e.preventDefault?.();
-            openModal();
+        function makeBtn(text, bg, onClick) {
+            const btn = document.createElement('button');
+            btn.textContent = text;
+            Object.assign(btn.style, {
+                height: '32px',
+                padding: '0 12px',
+                borderRadius: '8px',
+                border: '1px solid rgba(180,120,255,0.3)',
+                background: bg,
+                color: '#fff',
+                fontSize: '13px',
+                fontWeight: '700',
+                fontFamily: '"Nunito", system-ui, sans-serif',
+                cursor: 'pointer',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+                transition: 'filter 0.15s, transform 0.1s',
+                WebkitTapHighlightColor: 'transparent',
+                whiteSpace: 'nowrap',
+            });
+            btn.addEventListener('pointerdown', () => {
+                btn.style.filter = 'brightness(1.25)';
+                btn.style.transform = 'scale(0.93)';
+            });
+            btn.addEventListener('pointerup', () => {
+                btn.style.filter = '';
+                btn.style.transform = '';
+            });
+            btn.addEventListener('click', onClick);
+            return btn;
         }
-    }, { passive: true });
+
+        toggleBtn = makeBtn('Start', 'linear-gradient(135deg, #6b23c9, #9b4fff)', () => {
+            running ? stop() : start();
+        });
+
+        const speedBtn = makeBtn('Speed', 'rgba(20,10,40,0.85)', () => {
+            document.getElementById('tm-modal-overlay') ? closeModal() : buildModal();
+        });
+
+        wrap.append(toggleBtn, speedBtn);
+        document.body.appendChild(wrap);
+    }
+
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap';
     document.head.appendChild(link);
+
+    buildButtons();
 
 })();
