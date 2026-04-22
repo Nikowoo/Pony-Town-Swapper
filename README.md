@@ -16,6 +16,6 @@ Then press comma `","` to toggle the swapping on & off
 <br>
 
 ### On Mobile
-Press the screen with `4` fingers to bring up the change speed popup 
+Press the `speed` button to bring up the change speed popup 
 <br>
-Then tap the screen with `3` fingers to toggle the script on & off
+Then tap the `start` button to toggle the script on & off
