@@ -110,11 +110,11 @@
     }
 
     function promptSpeed() {
-        const input = prompt('Swap interval in ms (50–2000):', swapDelay);
+        const input = prompt('Swap interval in ms (1–2000):', swapDelay);
         if (input === null) return;
         const val = parseInt(input, 10);
-        if (isNaN(val) || val < 50 || val > 2000) {
-            alert('Please enter a number between 50 and 2000.');
+        if (isNaN(val) || val < 1 || val > 2000) {
+            alert('Please enter a number between 1 and 2000.');
             return;
         }
         swapDelay = val;
