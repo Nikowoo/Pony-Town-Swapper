@@ -152,11 +152,11 @@
     }
 
     function setSpeedPrompt() {
-        const input = prompt(`Enter swap speed (50–2000 ms):`, swapDelay);
+        const input = prompt(`Enter swap speed (1–2000 ms):`, swapDelay);
         if (input === null) return;
         const value = Number(input);
-        if (!Number.isInteger(value) || value < 50 || value > 2000) {
-            alert("Invalid input. Enter a number between 50 and 2000.");
+        if (!Number.isInteger(value) || value < 1 || value > 2000) {
+            alert("Invalid input. Enter a number between 1 and 2000.");
             return;
         }
         swapDelay = value;
